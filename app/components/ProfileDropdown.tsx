@@ -1,5 +1,4 @@
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react';
-import PlaceholderIcon from './PlaceholderIcon';
 import LogoutForm from './LogoutForm';
 import FallbackAvatar from './FallbackAvatar';
 

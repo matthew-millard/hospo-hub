@@ -12,7 +12,7 @@ import {
   ProfileDropdown,
   ThemeSwitcher,
 } from '../components';
-import { Link, useMatches, useRouteLoaderData } from '@remix-run/react';
+import { Link, useRouteLoaderData } from '@remix-run/react';
 import { useOptionalUser } from '~/hooks/useOptionalUser';
 import { loader } from '~/root';
 
