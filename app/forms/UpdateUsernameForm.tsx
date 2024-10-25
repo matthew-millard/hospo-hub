@@ -7,7 +7,7 @@ import { action, loader, updateUsernameActionIntent } from '~/routes/_user.$user
 import { UpdateUsernameSchema } from '~/schemas';
 
 export default function UpdateUsernameForm() {
-  const { username } = useLoaderData<typeof loader>();
+  const { user } = useLoaderData<typeof loader>();
   const lastResult = useActionData<typeof action>();
   const lastResultUsername = lastResult?.initialValue?.intent === updateUsernameActionIntent ? lastResult : null;
 
@@ -16,7 +16,7 @@ export default function UpdateUsernameForm() {
     lastResult: lastResultUsername,
     constraint: getZodConstraint(UpdateUsernameSchema),
     defaultValue: {
-      username,
+      username: user?.username,
     },
     onValidate({ formData }) {
       return parseWithZod(formData, {
