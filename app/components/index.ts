@@ -24,6 +24,7 @@ import PendingIndicator from './PendingIndicator';
 import DialogBox from './DialogBox';
 import Breadcrumbs from './Breadcrumbs';
 import { Breadcrumb } from './Breadcrumbs';
+import FallbackAvatar from './FallbackAvatar';
 
 export {
   Checkbox,
@@ -52,4 +53,5 @@ export {
   DialogBox,
   Breadcrumbs,
   Breadcrumb,
+  FallbackAvatar,
 };

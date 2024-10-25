@@ -3,6 +3,7 @@ import { Bars3Icon, Cog6ToothIcon, UserCircleIcon, XMarkIcon } from '@heroicons/
 import Logo from './Logo';
 import {
   Breadcrumbs,
+  FallbackAvatar,
   LinkButton,
   LinkWithPrefetch,
   LogoutForm,
@@ -115,13 +116,17 @@ export default function Header() {
             <div className="px-5 py-3">
               <a
                 href={`/${isLoggedInUser.username}`}
-                className="flex items-center rounded-md text-on-surface hover:text-on-surface-variant"
+                className="flex gap-x-3 items-center rounded-md text-on-surface hover:text-on-surface-variant"
               >
-                <img
-                  alt={`${data?.user?.firstName} ${data?.user?.lastName}`}
-                  src={data?.user?.profileImage?.url}
-                  className="mr-3 h-8 w-8 rounded-full object-cover"
-                />
+                {data?.user?.profileImage?.url ? (
+                  <img
+                    alt={`${data?.user?.firstName} ${data?.user?.lastName}`}
+                    src={data?.user?.profileImage?.url}
+                    className="h-8 w-8 rounded-full object-cover"
+                  />
+                ) : (
+                  <FallbackAvatar height="h-8" width="w-8" />
+                )}
                 <span className="sr-only">Your profile</span>
                 <span aria-hidden="true">{`${isLoggedInUser.firstName} ${isLoggedInUser.lastName}`}</span>
               </a>

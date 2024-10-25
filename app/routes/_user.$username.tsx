@@ -2,6 +2,7 @@ import { LoaderFunctionArgs } from '@remix-run/node';
 import { useFetchers, useLoaderData } from '@remix-run/react';
 import { requireUserId } from '~/.server/auth';
 import { prisma } from '~/.server/db';
+import { FallbackAvatar } from '~/components';
 import { DeleteDocumentForm, UploadDocumentForm, UploadProfileImageForm } from '~/forms';
 import classNames from '~/utils/classNames';
 
@@ -34,10 +35,14 @@ export default function UserProfileRoute() {
       <div className="mx-auto max-w-3xl px-4 sm:px-6 md:flex md:items-center md:justify-between md:space-x-5 lg:max-w-7xl xl:max-w-full lg:px-8">
         <div className="flex items-center space-x-5">
           <div className="relative flex-shrink-0">
-            <img
-              className="h-20 w-20 lg:h-24 lg:w-24 rounded-full object-cover ring-4 dark:ring-zinc-800 ring-white shadow-md"
-              src={data.profileImage?.url}
-            />
+            {data.profileImage?.url ? (
+              <img
+                className="h-20 w-20 lg:h-24 lg:w-24 rounded-full object-cover shadow-md"
+                src={data.profileImage?.url}
+              />
+            ) : (
+              <FallbackAvatar height="h-20 lg:h-24" width="w-20 lg:w-24" />
+            )}
             {isCurrentUser ? (
               <div className="absolute bottom-0 right-0">
                 <UploadProfileImageForm />
