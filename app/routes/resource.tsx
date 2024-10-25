@@ -125,8 +125,6 @@ async function uploadProfileImageAction(request: Request, userId: string) {
 
   const url = formData.get('profile') as string;
 
-  console.log('url', url);
-
   if (!uploadFileContentType) {
     return json({ success: false, error: 'Invalid file type' }, { status: 400 });
   } else if (!publicId) {
@@ -154,5 +152,18 @@ async function uploadProfileImageAction(request: Request, userId: string) {
     return json({ success: false, error: 'Unexpected error occurred' }, { status: 500 });
   }
 
-  return json({ success: true }, { status: 201 });
+  const toastCookieSession = await setToastCookie(request, {
+    id: crypto.randomUUID(),
+    type: 'success',
+    description: '',
+    title: `Profile image updated.`,
+  });
+
+  return json(
+    { success: true },
+    {
+      status: 201,
+      headers: { 'set-cookie': await toastSessionStorage.commitSession(toastCookieSession) },
+    }
+  );
 }
