@@ -111,29 +111,38 @@ export default function UserProfileRoute() {
                     <dd className="mt-1 text-sm text-on-surface-variant">
                       <ol
                         role="list"
-                        className="divide-y divide-across-surface border rounded-md border-around-surface"
+                        className={classNames(
+                          'divide-y divide-across-surface',
+                          data?.documents?.length || isCurrentUser ? 'border rounded-md border-around-surface' : ''
+                        )}
                       >
                         {isCurrentUser ? <UploadDocumentForm /> : null}
-                        {/* Has documents? Show documents : fallback to 'This user currently has not documents */}
-                        {data.documents?.map(document => (
-                          <li
-                            key={document.id}
-                            className={classNames(
-                              'items-center justify-between py-2 pl-4 pr-6 text-sm',
-                              isDeletingDocument(document.id) ? 'hidden' : 'flex'
-                            )}
-                          >
-                            <a
-                              href={`/resource/${document.id}`}
-                              className="flex w-0 flex-1 items-center h-6 font-medium text-primary hover:text-primary-variant disabled:text-dodger-blue-800 disabled:cursor-not-allowed"
-                              download={document.fileName}
+
+                        {data.documents?.length ? (
+                          data.documents.map(document => (
+                            <li
+                              key={document.id}
+                              className={classNames(
+                                'items-center justify-between py-2 pl-4 pr-6 text-sm',
+                                isDeletingDocument(document.id) ? 'hidden' : 'flex'
+                              )}
                             >
-                              {isCurrentUser ? <DeleteDocumentForm documentId={document.id} /> : null}
-                              <span className="w-0 flex-1 truncate text-zinc-500">{document.fileName}</span>
-                              <div className="ml-4 flex-shrink-0 flex">Download</div>
-                            </a>
+                              <a
+                                href={`/resource/${document.id}`}
+                                className="flex w-0 flex-1 items-center h-6 font-medium text-primary hover:text-primary-variant disabled:text-dodger-blue-800 disabled:cursor-not-allowed"
+                                download={document.fileName}
+                              >
+                                {isCurrentUser ? <DeleteDocumentForm documentId={document.id} /> : null}
+                                <span className="w-0 flex-1 truncate text-zinc-500">{document.fileName}</span>
+                                <div className="ml-4 flex-shrink-0 flex">Download</div>
+                              </a>
+                            </li>
+                          ))
+                        ) : isCurrentUser ? null : (
+                          <li className="pr-6 text-sm text-on-surface-variant italic truncate">
+                            {`${data.firstName} hasn't uploaded any documents yet.`}
                           </li>
-                        ))}
+                        )}
                       </ol>
                     </dd>
                   </div>
