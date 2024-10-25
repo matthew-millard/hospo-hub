@@ -1,6 +1,7 @@
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react';
 import PlaceholderIcon from './PlaceholderIcon';
 import LogoutForm from './LogoutForm';
+import FallbackAvatar from './FallbackAvatar';
 
 type ProfileDropdownProps = {
   userNavigation: { name: string; description: string; path: string; icon: any }[];
@@ -15,7 +16,11 @@ export default function ProfileDropdown({ userNavigation, username, url }: Profi
         <MenuButton className="relative flex rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-surface">
           <span className="absolute -inset-1.5" />
           <span className="sr-only">Open user menu</span>
-          <img alt={username} src={url} className="h-8 w-8 rounded-full object-cover" />
+          {url ? (
+            <img alt={username} src={url} className="h-8 w-8 rounded-full object-cover" />
+          ) : (
+            <FallbackAvatar height="h-8" width="w-8" />
+          )}
           {/* <PlaceholderIcon /> */}
         </MenuButton>
       </div>
