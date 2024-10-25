@@ -38,9 +38,11 @@ export default function UserProfileRoute() {
               className="h-20 w-20 lg:h-24 lg:w-24 rounded-full object-cover ring-4 dark:ring-zinc-800 ring-white shadow-md"
               src={data.profileImage?.url}
             />
-            <div className="absolute bottom-0 right-0">
-              <UploadProfileImageForm />
-            </div>
+            {isCurrentUser ? (
+              <div className="absolute bottom-0 right-0">
+                <UploadProfileImageForm />
+              </div>
+            ) : null}
           </div>
           <div>
             <h1 className="text-2xl font-bold text-on-surface">{`${data.firstName} ${data.lastName}`}</h1>
