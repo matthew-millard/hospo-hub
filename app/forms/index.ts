@@ -6,6 +6,7 @@ import LogOutOfOtherSessionsForm from './LogOutOtherSessionsForm';
 import UploadDocumentForm from './UploadDocumentForm';
 import DeleteDocumentForm from './DeleteDocumentForm';
 import UploadProfileImageForm from './UploadProfileImageForm';
+import PublicEndorsementForm from './PublicEndorsmentForm';
 
 export {
   LoginForm,
@@ -16,4 +17,5 @@ export {
   UploadDocumentForm,
   DeleteDocumentForm,
   UploadProfileImageForm,
+  PublicEndorsementForm,
 };

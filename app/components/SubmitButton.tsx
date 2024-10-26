@@ -4,7 +4,7 @@ type SubmitButtonProps = {
   fieldAttributes: React.ButtonHTMLAttributes<HTMLButtonElement>;
   text: string;
   isPending: boolean;
-  pendingText: 'Logging in...' | 'Signing up...';
+  pendingText: 'Logging in...' | 'Signing up...' | 'Submitting...' | 'Updating...' | 'Deleting...' | 'Posting...';
 };
 
 export default function SubmitButton({ fieldAttributes, text, isPending, pendingText }: SubmitButtonProps) {
