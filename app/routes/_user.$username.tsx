@@ -1,52 +1,49 @@
-import { PaperAirplaneIcon, QuestionMarkCircleIcon } from '@heroicons/react/24/outline';
-import { ActionFunctionArgs, LoaderFunctionArgs } from '@remix-run/node';
-import { useFetchers, useLoaderData } from '@remix-run/react';
-import { requireUserId } from '~/.server/auth';
-import { prisma } from '~/.server/db';
-import { FallbackAvatar, SubmitButton } from '~/components';
-import { DeleteDocumentForm, PublicEndorsementForm, UploadDocumentForm, UploadProfileImageForm } from '~/forms';
-import { uploadProfileImageActionIntent } from '~/forms/UploadProfileImageForm';
-import classNames from '~/utils/classNames';
-
-const comments = [
-  {
-    id: 1,
-    name: 'Leslie Alexander',
-    date: '4d ago',
-    imageId: '1494790108377-be9c29b29330',
-    body: 'Ducimus quas delectus ad maxime totam doloribus reiciendis ex. Tempore dolorem maiores. Similique voluptatibus tempore non ut.',
-  },
-  {
-    id: 2,
-    name: 'Michael Foster',
-    date: '4d ago',
-    imageId: '1519244703995-f4e0f30006d5',
-    body: 'Et ut autem. Voluptatem eum dolores sint necessitatibus quos. Quis eum qui dolorem accusantium voluptas voluptatem ipsum. Quo facere iusto quia accusamus veniam id explicabo et aut.',
-  },
-  {
-    id: 3,
-    name: 'Dries Vincent',
-    date: '4d ago',
-    imageId: '1506794778202-cad84cf45f1d',
-    body: 'Expedita consequatur sit ea voluptas quo ipsam recusandae. Ab sint et voluptatem repudiandae voluptatem et eveniet. Nihil quas consequatur autem. Perferendis rerum et.',
-  },
-];
+import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
+import { useFetchers, useLoaderData } from "@remix-run/react";
+import { publicEndorsementAction } from "~/.server/actions";
+import { requireUserId } from "~/.server/auth";
+import { prisma } from "~/.server/db";
+import { FallbackAvatar } from "~/components";
+import { DeleteDocumentForm, PublicEndorsementForm, UploadDocumentForm, UploadProfileImageForm } from "~/forms";
+import { publicEndorsementActionIntent } from "~/forms/PublicEndorsmentForm";
+import { uploadProfileImageActionIntent } from "~/forms/UploadProfileImageForm";
+import classNames from "~/utils/classNames";
+import timeAgo from "~/utils/timeAgo";
 
 export async function action({ request, params }: ActionFunctionArgs) {
-  return {};
+  const userId = await requireUserId(request); // Later update to only allow users who are verified friends
+  const formData = await request.formData();
+  const intent = formData.get("intent");
+
+  switch (intent) {
+    case publicEndorsementActionIntent: {
+      return publicEndorsementAction({ userId, formData, request });
+    }
+    default: {
+      throw new Error("Invalid intent");
+    }
+  }
 }
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const userId = await requireUserId(request); // throws if user is not logged in
 
+  const visitorData = await prisma.user.findFirst({
+    where: { id: userId },
+    include: {
+      profileImage: true,
+    },
+  });
+
   // get user's document data and return it
   const data = await prisma.user.findUnique({
     where: { username: params.username },
-    include: { documents: true, profileImage: true },
+    include: { documents: true, profileImage: true, endorsements: true },
   });
+
   const isCurrentUser = data?.id === userId;
 
-  return { ...data, isCurrentUser };
+  return { ...data, isCurrentUser, visitorData };
 }
 
 export default function UserProfileRoute() {
@@ -56,13 +53,11 @@ export default function UserProfileRoute() {
 
   const isDeletingDocument = (documentId: string) => {
     return fetchers.some(fetcher => {
-      return fetcher.formAction === `/resource/${documentId}` && fetcher.formMethod === 'POST';
+      return fetcher.formAction === `/resource/${documentId}` && fetcher.formMethod === "POST";
     });
   };
 
-  const isUploadingProfileImage = fetchers.some(
-    fetcher => fetcher.key === uploadProfileImageActionIntent && fetcher.state !== 'idle'
-  );
+  const isUploadingProfileImage = fetchers.some(fetcher => fetcher.key === uploadProfileImageActionIntent && fetcher.state !== "idle");
 
   return (
     <>
@@ -70,13 +65,7 @@ export default function UserProfileRoute() {
         <div className="flex items-center space-x-5">
           <div className="relative flex-shrink-0">
             {data.profileImage?.url ? (
-              <img
-                className={classNames(
-                  'h-20 w-20 lg:h-24 lg:w-24 rounded-full object-cover shadow-md',
-                  isUploadingProfileImage ? 'animate-pulse' : ''
-                )}
-                src={data.profileImage?.url}
-              />
+              <img className={classNames("h-20 w-20 lg:h-24 lg:w-24 rounded-full object-cover shadow-md", isUploadingProfileImage ? "animate-pulse" : "")} src={data.profileImage?.url} />
             ) : (
               <FallbackAvatar height="h-20 lg:h-24" width="w-20 lg:w-24" isPending={isUploadingProfileImage} />
             )}
@@ -88,9 +77,7 @@ export default function UserProfileRoute() {
           </div>
           <div>
             <h1 className="text-2xl font-bold text-on-surface">{`${data.firstName} ${data.lastName}`}</h1>
-            <p className="text-sm font-medium text-on-surface-variant">
-              Bartender and server at Giulia Pizza Elgin Street
-            </p>
+            <p className="text-sm font-medium text-on-surface-variant">Bartender and server at Giulia Pizza Elgin Street</p>
           </div>
         </div>
       </div>
@@ -111,9 +98,7 @@ export default function UserProfileRoute() {
                 <dl className="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
                   <div className="sm:col-span-1">
                     <dt className="text-sm font-medium text-on-surface">Current Position</dt>
-                    <dd className="mt-1 text-sm text-on-surface-variant">
-                      Bartender and server at Giulia Pizza Elgin Street
-                    </dd>
+                    <dd className="mt-1 text-sm text-on-surface-variant">Bartender and server at Giulia Pizza Elgin Street</dd>
                   </div>
                   <div className="sm:col-span-1">
                     <dt className="text-sm font-medium text-on-surface">Email address</dt>
@@ -130,32 +115,19 @@ export default function UserProfileRoute() {
                   <div className="sm:col-span-2">
                     <dt className="text-sm font-medium text-on-surface">About</dt>
                     <dd className="mt-1 text-sm text-on-surface-variant">
-                      Fugiat ipsum ipsum deserunt culpa aute sint do nostrud anim incididunt cillum culpa consequat.
-                      Excepteur qui ipsum aliquip consequat sint. Sit id mollit nulla mollit nostrud in ea officia
-                      proident. Irure nostrud pariatur mollit ad adipisicing reprehenderit deserunt qui eu.
+                      Fugiat ipsum ipsum deserunt culpa aute sint do nostrud anim incididunt cillum culpa consequat. Excepteur qui ipsum aliquip consequat sint. Sit id mollit nulla mollit nostrud in
+                      ea officia proident. Irure nostrud pariatur mollit ad adipisicing reprehenderit deserunt qui eu.
                     </dd>
                   </div>
                   <div className="sm:col-span-2">
                     <dt className="text-sm font-medium text-on-surface">Resume & References</dt>
                     <dd className="mt-1 text-sm text-on-surface-variant">
-                      <ol
-                        role="list"
-                        className={classNames(
-                          'divide-y divide-across-surface',
-                          data?.documents?.length || isCurrentUser ? 'border rounded-md border-around-surface' : ''
-                        )}
-                      >
+                      <ol role="list" className={classNames("divide-y divide-across-surface", data?.documents?.length || isCurrentUser ? "border rounded-md border-around-surface" : "")}>
                         {isCurrentUser ? <UploadDocumentForm /> : null}
 
                         {data.documents?.length ? (
                           data.documents.map(document => (
-                            <li
-                              key={document.id}
-                              className={classNames(
-                                'items-center justify-between py-2 pl-4 pr-6 text-sm',
-                                isDeletingDocument(document.id) ? 'hidden' : 'flex'
-                              )}
-                            >
+                            <li key={document.id} className={classNames("items-center justify-between py-2 pl-4 pr-6 text-sm", isDeletingDocument(document.id) ? "hidden" : "flex")}>
                               <a
                                 href={`/resource/${document.id}`}
                                 className="flex w-0 flex-1 items-center h-6 font-medium text-primary hover:text-primary-variant disabled:text-dodger-blue-800 disabled:cursor-not-allowed"
@@ -168,9 +140,7 @@ export default function UserProfileRoute() {
                             </li>
                           ))
                         ) : isCurrentUser ? null : (
-                          <li className="pr-6 text-sm text-on-surface-variant italic truncate">
-                            {`${data.firstName} hasn't uploaded any documents yet.`}
-                          </li>
+                          <li className="pr-6 text-sm text-on-surface-variant italic truncate">{`${data.firstName} hasn't uploaded any documents yet.`}</li>
                         )}
                       </ol>
                     </dd>
@@ -192,27 +162,22 @@ export default function UserProfileRoute() {
 
               <div className="border-t border-across-surface px-4 py-5 sm:px-6">
                 <ul role="list" className="space-y-8">
-                  {comments.map(comment => (
-                    <li key={comment.id}>
+                  {data.endorsements?.map(endorsement => (
+                    <li key={endorsement.id}>
                       <div className="flex space-x-3">
-                        <div className="flex-shrink-0">
-                          <img
-                            alt=""
-                            src={`https://images.unsplash.com/photo-${comment.imageId}?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80`}
-                            className="h-10 w-10 rounded-full object-cover"
-                          />
-                        </div>
+                        <div className="flex-shrink-0">{endorsement?.authorUrl ? <img alt="" src={endorsement?.authorUrl} className="h-10 w-10 rounded-full object-cover" /> : null}</div>
                         <div>
                           <div className="text-sm">
                             <a href="#" className="font-medium text-on-surface">
-                              {comment.name}
+                              {/* {comment.name} */}
+                              {endorsement.authorFullName}
                             </a>
                           </div>
                           <div className="mt-1 text-sm text-on-surface-variant">
-                            <p>{comment.body}</p>
+                            <p>{endorsement.body}</p>
                           </div>
                           <div className="mt-2 space-x-2 text-sm">
-                            <span className="font-medium text-on-surface-variant">{comment.date}</span>{' '}
+                            <span className="font-medium text-on-surface-variant">{timeAgo(new Date(endorsement.createdAt))}</span>{" "}
                           </div>
                         </div>
                       </div>
@@ -224,10 +189,10 @@ export default function UserProfileRoute() {
               <div className="px-4 py-6 sm:px-6 border-t border-across-surface">
                 <div className="flex space-x-3">
                   <div className="flex-shrink-0">
-                    <img alt="" src={data.profileImage?.url} className="h-10 w-10 rounded-full object-cover" />
+                    <img alt="" src={data.visitorData?.profileImage?.url} className="h-10 w-10 rounded-full object-cover" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <PublicEndorsementForm />
+                    <PublicEndorsementForm endorsedUserId={data.id} />
                   </div>
                 </div>
               </div>

@@ -15,7 +15,8 @@ Hospo Hub is a free networking platform for hospitality workers. Connect with in
 3. Install the project dependencies by running `npm install`
 4. Create a `.env` file and add the following:
 
-```DATABASE_URL="file:./dev.db"
+```
+DATABASE_URL="file:./dev.db"
 SESSION_SECRET='conform-demo-session-secret'
 CLOUD_NAME='hospohub'
 API_KEY='your-cloudinary-api-key'

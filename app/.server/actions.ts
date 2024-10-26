@@ -1,13 +1,14 @@
-import { parseWithZod } from '@conform-to/zod';
-import { z } from 'zod';
-import { UpdatePasswordSchema, UsernameSchema } from '~/schemas';
-import { prisma } from './db';
-import { json, redirect } from '@remix-run/node';
-import { setToastCookie, toastSessionStorage } from './toast';
-import { getPasswordHash, verifyUserPassword } from './auth';
-import { LogOutOfOtherSessionsSchema } from '~/schemas/auth';
-import { getSession } from './session';
-import { sessionKey } from './config';
+import { parseWithZod } from "@conform-to/zod";
+import { z } from "zod";
+import { UpdatePasswordSchema, UsernameSchema } from "~/schemas";
+import { prisma } from "./db";
+import { json, redirect } from "@remix-run/node";
+import { setToastCookie, toastSessionStorage } from "./toast";
+import { getPasswordHash, verifyUserPassword } from "./auth";
+import { LogOutOfOtherSessionsSchema } from "~/schemas/auth";
+import { getSession } from "./session";
+import { sessionKey } from "./config";
+import { publicEndorsementSchema } from "~/schemas/misc";
 
 type ActionArgs = {
   userId: string;
@@ -38,8 +39,8 @@ export async function usernameUpdateAction({ userId, formData, request }: Action
           if (user?.id !== userId && user) {
             ctx.addIssue({
               code: z.ZodIssueCode.custom,
-              message: 'Username is already taken',
-              path: ['username'],
+              message: "Username is already taken",
+              path: ["username"],
             });
             return;
           }
@@ -49,9 +50,9 @@ export async function usernameUpdateAction({ userId, formData, request }: Action
       }),
   });
 
-  if (submission.status !== 'success') {
+  if (submission.status !== "success") {
     return json(submission.reply(), {
-      status: submission.status === 'error' ? 400 : 200,
+      status: submission.status === "error" ? 400 : 200,
     });
   }
 
@@ -70,21 +71,21 @@ export async function usernameUpdateAction({ userId, formData, request }: Action
   if (!result) {
     return json(
       submission.reply({
-        formErrors: ['Something went wrong. Please try again. Error code: 500 - Internal Server Error'],
+        formErrors: ["Something went wrong. Please try again. Error code: 500 - Internal Server Error"],
       }),
-      { status: 500, statusText: 'Internal Server Error' }
+      { status: 500, statusText: "Internal Server Error" }
     );
   }
 
   const toastCookieSession = await setToastCookie(request, {
     id: crypto.randomUUID(),
-    type: 'success',
+    type: "success",
     description: `Your username has been updated to ${username}.`,
-    title: 'Username updated',
+    title: "Username updated",
   });
 
   return redirect(`/${username}/settings`, {
-    headers: { 'set-cookie': await toastSessionStorage.commitSession(toastCookieSession) },
+    headers: { "set-cookie": await toastSessionStorage.commitSession(toastCookieSession) },
   });
 }
 
@@ -99,9 +100,9 @@ export async function passwordUpdateAction({ userId, formData, request }: Action
 
         if (!user) {
           ctx.addIssue({
-            path: ['currentPassword'],
+            path: ["currentPassword"],
             code: z.ZodIssueCode.custom,
-            message: 'Incorrect password',
+            message: "Incorrect password",
           });
         }
       }
@@ -110,9 +111,9 @@ export async function passwordUpdateAction({ userId, formData, request }: Action
     }),
   });
 
-  if (submission.status !== 'success') {
-    return json(submission.reply({ hideFields: ['currentPassword', 'newPassword', 'confirmPassword'] }), {
-      status: submission.status === 'error' ? 400 : 200,
+  if (submission.status !== "success") {
+    return json(submission.reply({ hideFields: ["currentPassword", "newPassword", "confirmPassword"] }), {
+      status: submission.status === "error" ? 400 : 200,
     });
   }
 
@@ -134,22 +135,22 @@ export async function passwordUpdateAction({ userId, formData, request }: Action
   if (!result) {
     return json(
       submission.reply({
-        formErrors: ['Something went wrong. Please try again. Error code: 500 - Internal Server Error'],
-        hideFields: ['currentPassword', 'newPassword', 'confirmPassword'],
+        formErrors: ["Something went wrong. Please try again. Error code: 500 - Internal Server Error"],
+        hideFields: ["currentPassword", "newPassword", "confirmPassword"],
       }),
-      { status: 500, statusText: 'Internal Server Error' }
+      { status: 500, statusText: "Internal Server Error" }
     );
   }
 
   const toastCookieSession = await setToastCookie(request, {
     id: crypto.randomUUID(),
-    type: 'success',
+    type: "success",
     description: `Your password has been updated successfully.`,
-    title: 'Password updated',
+    title: "Password updated",
   });
 
-  return json(submission.reply({ hideFields: ['currentPassword', 'newPassword', 'confirmPassword'] }), {
-    headers: { 'set-cookie': await toastSessionStorage.commitSession(toastCookieSession) },
+  return json(submission.reply({ hideFields: ["currentPassword", "newPassword", "confirmPassword"] }), {
+    headers: { "set-cookie": await toastSessionStorage.commitSession(toastCookieSession) },
   });
 }
 
@@ -164,8 +165,8 @@ export async function logOutOtherSessionsAction({ userId, formData, request }: A
       if (!user) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: 'Incorrect password',
-          path: ['password'],
+          message: "Incorrect password",
+          path: ["password"],
           fatal: true,
         });
         return z.NEVER;
@@ -174,9 +175,9 @@ export async function logOutOtherSessionsAction({ userId, formData, request }: A
     }),
   });
 
-  if (submission.status !== 'success') {
-    return json(submission.reply({ hideFields: ['password'] }), {
-      status: submission.status === 'error' ? 400 : 200,
+  if (submission.status !== "success") {
+    return json(submission.reply({ hideFields: ["password"] }), {
+      status: submission.status === "error" ? 400 : 200,
     });
   }
 
@@ -195,24 +196,65 @@ export async function logOutOtherSessionsAction({ userId, formData, request }: A
   if (!result) {
     return json(
       submission.reply({
-        formErrors: ['Something went wrong. Please try again. Error code: 500 - Internal Server Error'],
-        hideFields: ['password'],
+        formErrors: ["Something went wrong. Please try again. Error code: 500 - Internal Server Error"],
+        hideFields: ["password"],
       }),
       {
         status: 500,
-        statusText: 'Internal Server Error',
+        statusText: "Internal Server Error",
       }
     );
   }
 
   const toastCookieSession = await setToastCookie(request, {
     id: crypto.randomUUID(),
-    type: 'success',
+    type: "success",
     description: `You have been logged out of other sessions.`,
-    title: 'Logged out of other sessions',
+    title: "Logged out of other sessions",
   });
 
-  return json(submission.reply({ hideFields: ['password'] }), {
-    headers: { 'set-cookie': await toastSessionStorage.commitSession(toastCookieSession) },
+  return json(submission.reply({ hideFields: ["password"] }), {
+    headers: { "set-cookie": await toastSessionStorage.commitSession(toastCookieSession) },
   });
+}
+
+// Post public endorsement
+export async function publicEndorsementAction({ userId: authorId, formData }: ActionArgs) {
+  const submission = parseWithZod(formData, {
+    schema: publicEndorsementSchema,
+  });
+
+  if (submission.status !== "success") {
+    return json(submission.reply(), {
+      status: 400,
+    });
+  }
+
+  const { body, endorsedUserId } = submission.value;
+
+  const author = await prisma.user.findFirst({
+    where: { id: authorId },
+    select: {
+      id: true,
+      firstName: true,
+      lastName: true,
+      profileImage: { select: { url: true } },
+    },
+  });
+
+  const endorsementRecord = await prisma.endorsement.create({
+    data: {
+      userId: endorsedUserId,
+      body,
+      authorId,
+      authorFullName: `${author?.firstName} ${author?.lastName}`,
+      authorUrl: author?.profileImage?.url,
+    },
+  });
+
+  if (!endorsementRecord) {
+    return json(submission.reply({ formErrors: ["An unexpected error occured"] }), { status: 500 });
+  }
+
+  return {};
 }
