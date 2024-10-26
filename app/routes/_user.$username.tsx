@@ -1,11 +1,40 @@
-import { LoaderFunctionArgs } from '@remix-run/node';
+import { PaperAirplaneIcon, QuestionMarkCircleIcon } from '@heroicons/react/24/outline';
+import { ActionFunctionArgs, LoaderFunctionArgs } from '@remix-run/node';
 import { useFetchers, useLoaderData } from '@remix-run/react';
 import { requireUserId } from '~/.server/auth';
 import { prisma } from '~/.server/db';
-import { FallbackAvatar } from '~/components';
-import { DeleteDocumentForm, UploadDocumentForm, UploadProfileImageForm } from '~/forms';
+import { FallbackAvatar, SubmitButton } from '~/components';
+import { DeleteDocumentForm, PublicEndorsementForm, UploadDocumentForm, UploadProfileImageForm } from '~/forms';
 import { uploadProfileImageActionIntent } from '~/forms/UploadProfileImageForm';
 import classNames from '~/utils/classNames';
+
+const comments = [
+  {
+    id: 1,
+    name: 'Leslie Alexander',
+    date: '4d ago',
+    imageId: '1494790108377-be9c29b29330',
+    body: 'Ducimus quas delectus ad maxime totam doloribus reiciendis ex. Tempore dolorem maiores. Similique voluptatibus tempore non ut.',
+  },
+  {
+    id: 2,
+    name: 'Michael Foster',
+    date: '4d ago',
+    imageId: '1519244703995-f4e0f30006d5',
+    body: 'Et ut autem. Voluptatem eum dolores sint necessitatibus quos. Quis eum qui dolorem accusantium voluptas voluptatem ipsum. Quo facere iusto quia accusamus veniam id explicabo et aut.',
+  },
+  {
+    id: 3,
+    name: 'Dries Vincent',
+    date: '4d ago',
+    imageId: '1506794778202-cad84cf45f1d',
+    body: 'Expedita consequatur sit ea voluptas quo ipsam recusandae. Ab sint et voluptatem repudiandae voluptatem et eveniet. Nihil quas consequatur autem. Perferendis rerum et.',
+  },
+];
+
+export async function action({ request, params }: ActionFunctionArgs) {
+  return {};
+}
 
 export async function loader({ request, params }: LoaderFunctionArgs) {
   const userId = await requireUserId(request); // throws if user is not logged in
@@ -66,9 +95,9 @@ export default function UserProfileRoute() {
         </div>
       </div>
 
-      {/* Personal Information */}
       <div className="mx-auto mt-8 grid max-w-3xl grid-cols-1 gap-6 sm:px-6 lg:max-w-7xl lg:mx-0 lg:grid-flow-col-dense lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2 lg:col-start-1">
+          {/* Personal Information */}
           <section aria-labelledby="personal-information-title">
             <div className="bg-surface dark:bg-zinc-950 shadow sm:rounded-lg border border-around-surface">
               <div className="px-4 py-5 sm:px-6">
@@ -147,6 +176,60 @@ export default function UserProfileRoute() {
                     </dd>
                   </div>
                 </dl>
+              </div>
+            </div>
+          </section>
+
+          {/* Comments*/}
+          <section aria-labelledby="public-endorsements">
+            <div className="bg-surface dark:bg-zinc-950 shadow sm:rounded-lg border border-around-surface overflow-hidden">
+              <div className="px-4 py-5 sm:px-6">
+                <h2 id="public-endorsements-title" className="text-lg font-medium leading-6 text-on-surface">
+                  Public Endorsements
+                </h2>
+                <p className="mt-1 max-w-2xl text-sm text-on-surface-variant">{`If you have worked alongside ${data.firstName}, leave a public endorsement below.`}</p>
+              </div>
+
+              <div className="border-t border-across-surface px-4 py-5 sm:px-6">
+                <ul role="list" className="space-y-8">
+                  {comments.map(comment => (
+                    <li key={comment.id}>
+                      <div className="flex space-x-3">
+                        <div className="flex-shrink-0">
+                          <img
+                            alt=""
+                            src={`https://images.unsplash.com/photo-${comment.imageId}?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80`}
+                            className="h-10 w-10 rounded-full object-cover"
+                          />
+                        </div>
+                        <div>
+                          <div className="text-sm">
+                            <a href="#" className="font-medium text-on-surface">
+                              {comment.name}
+                            </a>
+                          </div>
+                          <div className="mt-1 text-sm text-on-surface-variant">
+                            <p>{comment.body}</p>
+                          </div>
+                          <div className="mt-2 space-x-2 text-sm">
+                            <span className="font-medium text-on-surface-variant">{comment.date}</span>{' '}
+                          </div>
+                        </div>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="px-4 py-6 sm:px-6 border-t border-across-surface">
+                <div className="flex space-x-3">
+                  <div className="flex-shrink-0">
+                    <img alt="" src={data.profileImage?.url} className="h-10 w-10 rounded-full object-cover" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <PublicEndorsementForm />
+                  </div>
+                </div>
               </div>
             </div>
           </section>
