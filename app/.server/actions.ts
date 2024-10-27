@@ -238,15 +238,21 @@ export async function publicEndorsementAction({ userId: authorId, formData }: Ac
       id: true,
       firstName: true,
       lastName: true,
+      username: true,
       profileImage: { select: { url: true } },
     },
   });
+
+  if (!author) {
+    return json(submission.reply({ formErrors: ["Not authorized"] }), { status: 401 });
+  }
 
   const endorsementRecord = await prisma.endorsement.create({
     data: {
       userId: endorsedUserId,
       body,
       authorId,
+      authorUsername: author.username,
       authorFullName: `${author?.firstName} ${author?.lastName}`,
       authorUrl: author?.profileImage?.url,
     },
@@ -256,5 +262,21 @@ export async function publicEndorsementAction({ userId: authorId, formData }: Ac
     return json(submission.reply({ formErrors: ["An unexpected error occured"] }), { status: 500 });
   }
 
-  return {};
+  return json({ success: true }, { status: 201 });
+}
+
+// Delete public endorsement
+export async function deleteEndorsementAction({ userId, formData, request }: ActionArgs) {
+  const endorsementId = formData.get("endorsementId") as string;
+  const deletedEndorsement = await prisma.endorsement.delete({
+    where: {
+      id: endorsementId,
+    },
+  });
+
+  if (!deletedEndorsement) {
+    return json({ success: false }, { status: 400 });
+  }
+
+  return json({ success: true }, { status: 201 });
 }

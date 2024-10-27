@@ -1,10 +1,11 @@
 import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { useFetchers, useLoaderData } from "@remix-run/react";
-import { publicEndorsementAction } from "~/.server/actions";
+import { Link, useFetchers, useLoaderData } from "@remix-run/react";
+import { deleteEndorsementAction, publicEndorsementAction } from "~/.server/actions";
 import { requireUserId } from "~/.server/auth";
 import { prisma } from "~/.server/db";
 import { FallbackAvatar } from "~/components";
-import { DeleteDocumentForm, PublicEndorsementForm, UploadDocumentForm, UploadProfileImageForm } from "~/forms";
+import { DeleteDocumentForm, DeleteEndorsementForm, PublicEndorsementForm, UploadDocumentForm, UploadProfileImageForm } from "~/forms";
+import { deleteEndorsementActionIntent } from "~/forms/DeleteEndorsementForm";
 import { publicEndorsementActionIntent } from "~/forms/PublicEndorsmentForm";
 import { uploadProfileImageActionIntent } from "~/forms/UploadProfileImageForm";
 import classNames from "~/utils/classNames";
@@ -18,6 +19,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
   switch (intent) {
     case publicEndorsementActionIntent: {
       return publicEndorsementAction({ userId, formData, request });
+    }
+    case deleteEndorsementActionIntent: {
+      return deleteEndorsementAction({ userId, formData, request });
     }
     default: {
       throw new Error("Invalid intent");
@@ -150,52 +154,66 @@ export default function UserProfileRoute() {
             </div>
           </section>
 
-          {/* Comments*/}
+          {/* Public Endorsements*/}
           <section aria-labelledby="public-endorsements">
             <div className="bg-surface dark:bg-zinc-950 shadow sm:rounded-lg border border-around-surface overflow-hidden">
               <div className="px-4 py-5 sm:px-6">
                 <h2 id="public-endorsements-title" className="text-lg font-medium leading-6 text-on-surface">
                   Public Endorsements
                 </h2>
-                <p className="mt-1 max-w-2xl text-sm text-on-surface-variant">{`If you have worked alongside ${data.firstName}, leave a public endorsement below.`}</p>
+                {isCurrentUser ? null : <p className="mt-1 max-w-2xl text-sm text-on-surface-variant">{`If you have worked alongside ${data.firstName}, leave a public endorsement below.`}</p>}
               </div>
 
               <div className="border-t border-across-surface px-4 py-5 sm:px-6">
                 <ul role="list" className="space-y-8">
-                  {data.endorsements?.map(endorsement => (
-                    <li key={endorsement.id}>
-                      <div className="flex space-x-3">
-                        <div className="flex-shrink-0">{endorsement?.authorUrl ? <img alt="" src={endorsement?.authorUrl} className="h-10 w-10 rounded-full object-cover" /> : null}</div>
-                        <div>
-                          <div className="text-sm">
-                            <a href="#" className="font-medium text-on-surface">
-                              {/* {comment.name} */}
-                              {endorsement.authorFullName}
-                            </a>
+                  {data.endorsements?.length ? (
+                    data.endorsements.map(endorsement => (
+                      <li key={endorsement.id}>
+                        <div className="flex space-x-3">
+                          <div className="flex-shrink-0">
+                            {endorsement?.authorUrl ? (
+                              <Link to={`/${endorsement.authorUsername}`} prefetch="intent">
+                                <img alt={endorsement.authorFullName} src={endorsement?.authorUrl} className="h-10 w-10 rounded-full object-cover" />
+                              </Link>
+                            ) : null}
                           </div>
-                          <div className="mt-1 text-sm text-on-surface-variant">
-                            <p>{endorsement.body}</p>
-                          </div>
-                          <div className="mt-2 space-x-2 text-sm">
-                            <span className="font-medium text-on-surface-variant">{timeAgo(new Date(endorsement.createdAt))}</span>{" "}
+                          <div>
+                            <div className="text-sm">
+                              <Link to={`/${endorsement.authorUsername}`} prefetch="intent" className="font-medium text-on-surface">
+                                {endorsement.authorFullName}
+                              </Link>
+                            </div>
+                            <div className="mt-1 text-sm text-on-surface-variant">
+                              <p>{endorsement.body}</p>
+                            </div>
+                            <div className="mt-2 flex items-center gap-x-2 text-sm">
+                              <span className="font-medium text-on-surface-variant">{timeAgo(new Date(endorsement.createdAt))}</span>{" "}
+                              {isCurrentUser || endorsement.authorId === data.visitorData?.id ? <DeleteEndorsementForm endorsementId={endorsement.id} /> : null}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </li>
-                  ))}
+                      </li>
+                    ))
+                  ) : isCurrentUser ? (
+                    <li className="pr-6 text-sm text-on-surface-variant italic truncate">{`You currently don't have any endorsements.`}</li>
+                  ) : (
+                    <li className="pr-6 text-sm text-on-surface-variant italic truncate">{`Be the first to give ${data.firstName} an endorsement.`}</li>
+                  )}
                 </ul>
               </div>
 
-              <div className="px-4 py-6 sm:px-6 border-t border-across-surface">
-                <div className="flex space-x-3">
-                  <div className="flex-shrink-0">
-                    <img alt="" src={data.visitorData?.profileImage?.url} className="h-10 w-10 rounded-full object-cover" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <PublicEndorsementForm endorsedUserId={data.id} />
+              {!isCurrentUser ? (
+                <div className="px-4 py-6 sm:px-6 border-t border-across-surface">
+                  <div className="flex space-x-3">
+                    <div className="flex-shrink-0">
+                      <img alt="" src={data.visitorData?.profileImage?.url} className="h-10 w-10 rounded-full object-cover" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <PublicEndorsementForm endorsedUserId={data.id} />
+                    </div>
                   </div>
                 </div>
-              </div>
+              ) : null}
             </div>
           </section>
         </div>
