@@ -204,15 +204,17 @@ export default function UserProfileRoute() {
                       <li key={endorsement.id}>
                         <div className="flex space-x-3">
                           <div className="flex-shrink-0">
-                            {endorsement?.authorUrl ? (
-                              <Link to={`/${endorsement.authorUsername}`} prefetch="intent">
+                            <Link to={`/${endorsement.authorUsername}`} prefetch="intent">
+                              {endorsement?.authorUrl ? (
                                 <img
                                   alt={endorsement.authorFullName}
                                   src={endorsement?.authorUrl}
                                   className="h-10 w-10 rounded-full object-cover"
                                 />
-                              </Link>
-                            ) : null}
+                              ) : (
+                                <FallbackAvatar height="h-10" width="w-10" />
+                              )}
+                            </Link>
                           </div>
                           <div>
                             <div className="text-sm">
@@ -247,15 +249,20 @@ export default function UserProfileRoute() {
                 </ul>
               </div>
 
+              {/* If user is not the current user, give the visiting user the ability to post a public endorsement */}
               {!isCurrentUser ? (
                 <div className="px-4 py-6 sm:px-6 border-t border-across-surface">
                   <div className="flex space-x-3">
                     <div className="flex-shrink-0">
-                      <img
-                        alt=""
-                        src={data.visitorData?.profileImage?.url}
-                        className="h-10 w-10 rounded-full object-cover"
-                      />
+                      {data.visitorData?.profileImage?.url ? (
+                        <img
+                          alt={`${data.visitorData?.firstName} ${data.visitorData?.lastName}`}
+                          src={data.visitorData?.profileImage?.url}
+                          className="h-10 w-10 rounded-full object-cover"
+                        />
+                      ) : (
+                        <FallbackAvatar height="h-10" width="w-10" />
+                      )}
                     </div>
                     <div className="min-w-0 flex-1">
                       <PublicEndorsementForm endorsedUserId={data.id} />
