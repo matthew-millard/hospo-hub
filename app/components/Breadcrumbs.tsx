@@ -7,7 +7,7 @@ export default function Breadcrumbs() {
 
   return (
     <nav aria-label="Breadcrumb">
-      <div className="hidden md:block border-t border-around-surface py-3">
+      <div className="hidden md:block border-t border-around-surface py-3 max-w-screen-xl mx-auto">
         <ol role="list" className="flex items-center space-x-4">
           <li>
             <div>

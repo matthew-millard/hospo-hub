@@ -14,7 +14,7 @@ export default function UserLayoutRoute() {
       <div>
         <Header />
       </div>
-      <main className="py-10">
+      <main className="py-10 max-w-screen-xl mx-auto">
         <Outlet />
       </main>
     </div>

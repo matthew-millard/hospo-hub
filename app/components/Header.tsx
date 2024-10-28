@@ -38,7 +38,7 @@ export default function Header() {
   return (
     <Popover className="sticky top-0 z-50">
       <div className="mx-auto px-6 bg-surface dark:bg-zinc-900 border-b border-around-surface shadow-lg">
-        <div className="flex items-center justify-between py-3 md:justify-start md:space-x-10">
+        <div className="mx-auto flex items-center justify-between py-3 md:justify-start md:space-x-10 max-w-screen-xl">
           <div className="flex justify-start lg:w-0 lg:flex-1">
             <Logo />
           </div>
