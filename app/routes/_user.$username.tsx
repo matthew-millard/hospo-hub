@@ -71,6 +71,12 @@ export default function UserProfileRoute() {
     fetcher => fetcher.key === uploadProfileImageActionIntent && fetcher.state !== 'idle'
   );
 
+  const isDeletingEndorsement = (endorsementId: string) => {
+    return fetchers.some(fetcher => {
+      return fetcher.key === deleteEndorsementActionIntent && fetcher.formData?.get('endorsementId') === endorsementId;
+    });
+  };
+
   return (
     <>
       <div className="mx-auto max-w-3xl px-4 sm:px-6 md:flex md:items-center md:justify-between md:space-x-5 lg:max-w-7xl xl:max-w-full lg:px-8">
@@ -198,10 +204,13 @@ export default function UserProfileRoute() {
               </div>
 
               <div className="border-t border-across-surface px-4 py-5 sm:px-6">
-                <ul role="list" className="space-y-8">
+                <ul role="list" className="grid grid-cols-1 gap-y-5">
                   {data.endorsements?.length ? (
                     data.endorsements.map(endorsement => (
-                      <li key={endorsement.id}>
+                      <li
+                        key={endorsement.id}
+                        className={classNames(isDeletingEndorsement(endorsement.id) ? 'hidden' : '')}
+                      >
                         <div className="flex space-x-3">
                           <div className="flex-shrink-0">
                             <Link to={`/${endorsement.authorUsername}`} prefetch="intent">
