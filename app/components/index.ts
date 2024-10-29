@@ -25,6 +25,7 @@ import DialogBox from './DialogBox';
 import Breadcrumbs from './Breadcrumbs';
 import { Breadcrumb } from './Breadcrumbs';
 import FallbackAvatar from './FallbackAvatar';
+import PeopleYouMayKnow from './PeopleYouMayKnow';
 
 export {
   Checkbox,
@@ -54,4 +55,5 @@ export {
   Breadcrumbs,
   Breadcrumb,
   FallbackAvatar,
+  PeopleYouMayKnow,
 };

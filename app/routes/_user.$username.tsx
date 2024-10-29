@@ -3,7 +3,7 @@ import { Link, useFetchers, useLoaderData } from '@remix-run/react';
 import { deleteEndorsementAction, publicEndorsementAction } from '~/.server/actions';
 import { requireUserId } from '~/.server/auth';
 import { prisma } from '~/.server/db';
-import { FallbackAvatar } from '~/components';
+import { FallbackAvatar, PeopleYouMayKnow } from '~/components';
 import {
   DeleteDocumentForm,
   DeleteEndorsementForm,
@@ -282,6 +282,8 @@ export default function UserProfileRoute() {
             </div>
           </section>
         </div>
+        {/* People You May Know */}
+        <PeopleYouMayKnow />
       </div>
     </>
   );
