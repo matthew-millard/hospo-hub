@@ -10,7 +10,7 @@ import {
   UpdateUsernameSchema,
 } from './auth';
 import { ThemeSwitcherSchema } from './theme';
-import { UploadDocumentSchema, MAX_FILE_SIZE, ACCEPTED_DOCUMENT_TYPES } from './misc';
+import { UploadDocumentSchema, MAX_FILE_SIZE, ACCEPTED_DOCUMENT_TYPES, initiateConnectionSchema } from './misc';
 
 export {
   FirstNameSchema,
@@ -26,4 +26,5 @@ export {
   UploadDocumentSchema,
   MAX_FILE_SIZE,
   ACCEPTED_DOCUMENT_TYPES,
+  initiateConnectionSchema,
 };
