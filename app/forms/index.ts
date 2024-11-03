@@ -9,6 +9,7 @@ import UploadProfileImageForm from './UploadProfileImageForm';
 import PublicEndorsementForm from './PublicEndorsmentForm';
 import DeleteEndorsementForm from './DeleteEndorsementForm';
 import ConnectWithUserForm from './ConnectWithUserForm';
+import UpdateLocationForm from './UpdateLocationForm';
 
 export {
   LoginForm,
@@ -22,4 +23,5 @@ export {
   PublicEndorsementForm,
   DeleteEndorsementForm,
   ConnectWithUserForm,
+  UpdateLocationForm,
 };

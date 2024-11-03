@@ -8,11 +8,13 @@ import {
   DeleteDocumentForm,
   DeleteEndorsementForm,
   PublicEndorsementForm,
+  UpdateLocationForm,
   UploadDocumentForm,
   UploadProfileImageForm,
 } from '~/forms';
 import { deleteEndorsementActionIntent } from '~/forms/DeleteEndorsementForm';
 import { publicEndorsementActionIntent } from '~/forms/PublicEndorsmentForm';
+import { updateLocationActionIntent } from '~/forms/UpdateLocationForm';
 import { uploadProfileImageActionIntent } from '~/forms/UploadProfileImageForm';
 import classNames from '~/utils/classNames';
 import timeAgo from '~/utils/timeAgo';
@@ -28,6 +30,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
     }
     case deleteEndorsementActionIntent: {
       return deleteEndorsementAction({ userId, formData, request });
+    }
+    case updateLocationActionIntent: {
+      console.log('Update location action');
+      return {};
     }
     default: {
       throw new Error('Invalid intent');
@@ -133,8 +139,14 @@ export default function UserProfileRoute() {
                     <dd className="mt-1 text-sm text-on-surface-variant">{data.email}</dd>
                   </div>
                   <div className="sm:col-span-1">
-                    <dt className="text-sm font-medium text-on-surface">Location</dt>
-                    <dd className="mt-1 text-sm text-on-surface-variant">Ottawa, Canada</dd>
+                    {isCurrentUser ? (
+                      <UpdateLocationForm />
+                    ) : (
+                      <div>
+                        <dt className="text-sm font-medium text-on-surface">Location</dt>
+                        <dd className="mt-1 text-sm text-on-surface-variant">Ottawa, Canada</dd>
+                      </div>
+                    )}
                   </div>
                   <div className="sm:col-span-1">
                     <dt className="text-sm font-medium text-on-surface">Phone</dt>
