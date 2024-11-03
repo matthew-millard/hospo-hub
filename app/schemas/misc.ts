@@ -37,3 +37,7 @@ export const initiateConnectionSchema = z
   .refine(data => data.userId !== data.targetUserId, {
     message: 'You cannot connect with yourself.',
   });
+
+export const UpdateLocationSchema = z.object({
+  location: z.string().min(1, 'Please select a location.').max(100, 'Location must be less than 100 characters.'),
+});
