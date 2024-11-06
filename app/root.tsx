@@ -1,4 +1,4 @@
-import { Links, Meta, Outlet, redirect, Scripts, ScrollRestoration, useLoaderData } from '@remix-run/react';
+import { Links, Meta, Outlet, redirect, Scripts, ScrollRestoration, useLoaderData, useMatches } from '@remix-run/react';
 import { json, LinksFunction, LoaderFunctionArgs, MetaFunction } from '@remix-run/node';
 import styles from '~/tailwind.css?url';
 import honeypot, { checkHoneypot } from './.server/honeypot';
@@ -16,6 +16,7 @@ import { combineHeaders } from './utils/misc';
 import { toast as showToast, Toaster } from 'sonner';
 import { useEffect } from 'react';
 import { ToastProps } from './components/Toast';
+import { ExternalScripts } from 'remix-utils/external-scripts';
 
 export const updateThemeActionIntent = 'update-theme';
 
@@ -86,6 +87,7 @@ function App() {
 
 function Document({ children }: { children: React.ReactNode }) {
   const theme = useTheme();
+
   return (
     <html lang="en" className={`${theme} h-full`}>
       <head>
@@ -99,6 +101,7 @@ function Document({ children }: { children: React.ReactNode }) {
         {children}
         <Toaster />
         <ScrollRestoration />
+        <ExternalScripts />
         <Scripts />
       </body>
     </html>
