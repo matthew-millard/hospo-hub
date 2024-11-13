@@ -9,7 +9,7 @@ import { getThemeFromCookie, updateTheme } from './.server/theme';
 import { Theme } from './components/ThemeSwitcher';
 import { useTheme } from './hooks';
 import { getUserId } from './.server/auth';
-import { getUserData } from './.server/utils';
+import { getPeopleYouMayKnow, getUserData } from './.server/utils';
 import { GenericErrorBoundary, Toast } from './components';
 import { getToast, toastSessionStorage } from './.server/toast';
 import { combineHeaders } from './utils/misc';
@@ -50,12 +50,17 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
   const user = userId ? await getUserData(userId) : null;
 
+  // get all other users within the same city
+
+  const peopleYouMayKnow = await getPeopleYouMayKnow(userId, user?.location?.placeId);
+
   const data = {
     csrfToken,
     honeypotInputProps: honeypot.getInputProps(),
     theme: theme as Theme,
     toast,
     user,
+    peopleYouMayKnow,
   };
 
   const combinedHeader = combineHeaders(
