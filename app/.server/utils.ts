@@ -23,6 +23,12 @@ export async function getUserData(userId: string) {
           },
         },
       },
+      location: {
+        select: {
+          placeId: true,
+          city: true,
+        },
+      },
     },
     // Include more fields here if needed
   });
@@ -38,5 +44,33 @@ export async function getUserData(userId: string) {
     });
   } else {
     return user;
+  }
+}
+
+export async function getPeopleYouMayKnow(userId: string | null, placeId: string | undefined) {
+  if (!userId || !placeId) {
+    return [];
+  } else {
+    return await prisma.user.findMany({
+      where: {
+        location: {
+          placeId,
+        },
+        AND: {
+          NOT: {
+            id: userId,
+          },
+        },
+      },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        profileImage: true,
+        username: true,
+        location: true,
+      },
+      take: 5,
+    });
   }
 }
