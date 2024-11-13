@@ -8,7 +8,7 @@ import { getPasswordHash, verifyUserPassword } from './auth';
 import { LogOutOfOtherSessionsSchema } from '~/schemas/auth';
 import { getSession } from './session';
 import { sessionKey } from './config';
-import { publicEndorsementSchema } from '~/schemas/misc';
+import { publicEndorsementSchema, UpdateLocationSchema } from '~/schemas/misc';
 
 type ActionArgs = {
   userId: string;
@@ -277,6 +277,48 @@ export async function deleteEndorsementAction({ userId, formData, request }: Act
   if (!deletedEndorsement) {
     return json({ success: false }, { status: 400 });
   }
+
+  return json({ success: true }, { status: 201 });
+}
+
+// Update user location
+export async function updateLocationAction({ userId, request, formData }: ActionArgs) {
+  const submission = parseWithZod(formData, {
+    schema: UpdateLocationSchema,
+  });
+
+  if (submission.status !== 'success') {
+    return json(submission.reply(), {
+      status: 400,
+    });
+  }
+
+  const { placeId, city, region } = submission.value;
+
+  const location = await prisma.location.upsert({
+    where: {
+      placeId,
+    },
+    create: {
+      placeId,
+      city,
+      region,
+    },
+    update: {},
+  });
+
+  if (!location) {
+    return json(submission.reply({ formErrors: ['An unexpected error occured'] }), { status: 500 });
+  }
+
+  await prisma.user.update({
+    where: {
+      id: userId,
+    },
+    data: {
+      locationId: location.placeId,
+    },
+  });
 
   return json({ success: true }, { status: 201 });
 }

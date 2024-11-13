@@ -1,6 +1,6 @@
 import { ActionFunctionArgs, LoaderFunctionArgs } from '@remix-run/node';
 import { Link, useFetchers, useLoaderData } from '@remix-run/react';
-import { deleteEndorsementAction, publicEndorsementAction } from '~/.server/actions';
+import { deleteEndorsementAction, publicEndorsementAction, updateLocationAction } from '~/.server/actions';
 import { requireUserId } from '~/.server/auth';
 import { prisma } from '~/.server/db';
 import { FallbackAvatar, PeopleYouMayKnow } from '~/components';
@@ -16,6 +16,7 @@ import { deleteEndorsementActionIntent } from '~/forms/DeleteEndorsementForm';
 import { publicEndorsementActionIntent } from '~/forms/PublicEndorsmentForm';
 import { updateLocationActionIntent } from '~/forms/UpdateLocationForm';
 import { uploadProfileImageActionIntent } from '~/forms/UploadProfileImageForm';
+import { useOptimistic } from '~/hooks';
 import classNames from '~/utils/classNames';
 import timeAgo from '~/utils/timeAgo';
 
@@ -32,8 +33,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
       return deleteEndorsementAction({ userId, formData, request });
     }
     case updateLocationActionIntent: {
-      console.log('Update location action');
-      return {};
+      return updateLocationAction({ userId, formData, request });
     }
     default: {
       throw new Error('Invalid intent');
@@ -54,7 +54,7 @@ export async function loader({ request, params }: LoaderFunctionArgs) {
   // get user's document data and return it
   const data = await prisma.user.findUnique({
     where: { username: params.username },
-    include: { documents: true, profileImage: true, endorsements: true },
+    include: { documents: true, profileImage: true, endorsements: true, location: true },
   });
 
   const isCurrentUser = data?.id === userId;
@@ -140,11 +140,13 @@ export default function UserProfileRoute() {
                   </div>
                   <div className="sm:col-span-1">
                     {isCurrentUser ? (
-                      <UpdateLocationForm />
+                      <UpdateLocationForm initialCity={data.location?.city} />
                     ) : (
                       <div>
                         <dt className="text-sm font-medium text-on-surface">Location</dt>
-                        <dd className="mt-1 text-sm text-on-surface-variant">Ottawa, Canada</dd>
+                        <dd className="mt-1 text-sm text-on-surface-variant">
+                          {useOptimistic(updateLocationActionIntent, 'city') ?? data.location?.city}
+                        </dd>
                       </div>
                     )}
                   </div>

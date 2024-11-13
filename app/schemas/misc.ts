@@ -39,5 +39,7 @@ export const initiateConnectionSchema = z
   });
 
 export const UpdateLocationSchema = z.object({
-  location: z.string().min(1, 'Please select a location.').max(100, 'Location must be less than 100 characters.'),
+  placeId: z.string().min(1, { message: 'Please select a valid address from the list.' }).max(100),
+  city: z.string().min(1).max(100),
+  region: z.string().min(1, { message: 'Please select a valid address from the list.' }).max(100),
 });
