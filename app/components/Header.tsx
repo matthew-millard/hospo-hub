@@ -8,6 +8,7 @@ import {
   LinkWithPrefetch,
   LogoutForm,
   MenuToggle,
+  NotificationBell,
   PreTextWithLink,
   ProfileDropdown,
   ThemeSwitcher,
@@ -56,6 +57,7 @@ export default function Header() {
 
             {isLoggedInUser ? (
               <>
+                <NotificationBell />
                 <ProfileDropdown
                   userNavigation={userNavigation}
                   username={isLoggedInUser.username}
