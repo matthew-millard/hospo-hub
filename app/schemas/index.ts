@@ -14,7 +14,7 @@ import {
   UploadDocumentSchema,
   MAX_FILE_SIZE,
   ACCEPTED_DOCUMENT_TYPES,
-  initiateConnectionSchema,
+  connectionSchema,
   UpdateLocationSchema,
 } from './misc';
 
@@ -32,6 +32,6 @@ export {
   UploadDocumentSchema,
   MAX_FILE_SIZE,
   ACCEPTED_DOCUMENT_TYPES,
-  initiateConnectionSchema,
+  connectionSchema,
   UpdateLocationSchema,
 };

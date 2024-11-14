@@ -29,6 +29,8 @@ export async function getUserData(userId: string) {
           city: true,
         },
       },
+      connections: true,
+      receivedConnections: true,
     },
     // Include more fields here if needed
   });
@@ -70,7 +72,7 @@ export async function getPeopleYouMayKnow(userId: string | null, placeId: string
         username: true,
         location: true,
       },
-      take: 5,
+      take: 20, // Limit the number of users to 20
     });
   }
 }

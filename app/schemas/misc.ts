@@ -29,7 +29,7 @@ export const publicEndorsementSchema = z.object({
   endorsedUserId: z.string().min(1),
 });
 
-export const initiateConnectionSchema = z
+export const connectionSchema = z
   .object({
     userId: z.string({ message: 'Invalid user ID format.' }),
     targetUserId: z.string({ message: 'Invalid target user ID format.' }),

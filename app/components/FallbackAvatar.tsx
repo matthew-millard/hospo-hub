@@ -12,7 +12,7 @@ export default function FallbackAvatar({
   return (
     <span
       className={classNames(
-        'inline-block overflow-hidden rounded-full bg-gray-100 shadow-md',
+        'inline-block overflow-hidden rounded-full bg-gray-100',
         height,
         width,
         isPending ? 'animate-pulse' : ''
