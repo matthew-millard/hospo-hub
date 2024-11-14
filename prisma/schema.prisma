@@ -11,19 +11,36 @@ datasource db {
 }
 
 model User {
-  id           String        @id @default(cuid())
-  firstName    String
-  lastName     String
-  username     String        @unique
-  email        String        @unique
-  sessions     Session[]
-  password     Password?
-  roles        Role[]
-  documents    Document[]
-  profileImage ProfileImage?
-  endorsements Endorsement[]
-  location     Location?     @relation(fields: [locationId], references: [placeId])
-  locationId   String?
+  id                  String        @id @default(cuid())
+  firstName           String
+  lastName            String
+  username            String        @unique
+  email               String        @unique
+  sessions            Session[]
+  password            Password?
+  roles               Role[]
+  documents           Document[]
+  profileImage        ProfileImage?
+  endorsements        Endorsement[]
+  location            Location?     @relation(fields: [locationId], references: [placeId])
+  locationId          String?
+  connections         Connection[]  @relation("InitiatedConnections")
+  receivedConnections Connection[]  @relation("ReceivedConnections")
+}
+
+model Connection {
+  id           String   @id @default(cuid())
+  userId       String // ID of the user who initiated the connection
+  targetUserId String // ID of the user who is the target of the connection
+  status       String   @default("PENDING") // PENDING, ACCEPTED, DECLINED
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Foreign keys
+  user       User @relation("InitiatedConnections", fields: [userId], references: [id])
+  targetUser User @relation("ReceivedConnections", fields: [targetUserId], references: [id])
+
+  @@unique([userId, targetUserId]) // Ensure that a connection between two users is unique
 }
 
 model Location {
