@@ -2,14 +2,17 @@ import { BellIcon } from '@heroicons/react/24/outline';
 
 const notifications = true;
 
-export default function NotificationBell() {
-  const handleClick = () => {
-    console.log('clicked');
-  };
+export default function NotificationBell({
+  showNotifications,
+  setShowNotifications,
+}: {
+  showNotifications: boolean;
+  setShowNotifications: (show: boolean) => void;
+}) {
   return (
     <button
       type="button"
-      onClick={handleClick}
+      onClick={() => setShowNotifications(!showNotifications)}
       className="text-on-surface hover:text-on-surface-variant relative"
       aria-label="Notifications"
     >

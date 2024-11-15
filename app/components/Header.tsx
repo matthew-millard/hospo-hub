@@ -9,6 +9,7 @@ import {
   LogoutForm,
   MenuToggle,
   NotificationBell,
+  NotificationDropDown,
   PreTextWithLink,
   ProfileDropdown,
   ThemeSwitcher,
@@ -16,6 +17,7 @@ import {
 import { Link, useRouteLoaderData } from '@remix-run/react';
 import { useOptionalUser } from '~/hooks/useOptionalUser';
 import { loader } from '~/root';
+import { useState } from 'react';
 
 export const userNavigation = [
   {
@@ -35,6 +37,8 @@ export const userNavigation = [
 export default function Header() {
   const isLoggedInUser = useOptionalUser();
   const data = useRouteLoaderData<typeof loader>('root');
+  const [showNotifications, setShowNotifications] = useState(false);
+  console.log('showNotifications', showNotifications);
 
   return (
     <Popover className="sticky top-0 z-50">
@@ -57,7 +61,10 @@ export default function Header() {
 
             {isLoggedInUser ? (
               <>
-                <NotificationBell />
+                <div className="relative flex items-center">
+                  <NotificationBell showNotifications={showNotifications} setShowNotifications={setShowNotifications} />
+                  {showNotifications ? <NotificationDropDown /> : null}
+                </div>
                 <ProfileDropdown
                   userNavigation={userNavigation}
                   username={isLoggedInUser.username}

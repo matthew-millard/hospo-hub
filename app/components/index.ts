@@ -27,6 +27,7 @@ import { Breadcrumb } from './Breadcrumbs';
 import FallbackAvatar from './FallbackAvatar';
 import PeopleYouMayKnow from './PeopleYouMayKnow';
 import NotificationBell from './NotificationBell';
+import NotificationDropDown from './NotificationDropDown';
 
 export {
   Checkbox,
@@ -58,4 +59,5 @@ export {
   FallbackAvatar,
   PeopleYouMayKnow,
   NotificationBell,
+  NotificationDropDown,
 };
