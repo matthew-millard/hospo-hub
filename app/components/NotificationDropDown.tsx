@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import classNames from '~/utils/classNames';
 
 export default function NotificationDropDown() {
@@ -25,22 +26,23 @@ export default function NotificationDropDown() {
 const notificationTabs = [
   {
     name: 'All',
-    current: true,
   },
   {
     name: 'Connections',
-    current: false,
   },
 ];
 
 function NotificationTabs() {
+  const [activeTab, setActiveTab] = useState('All');
   return (
     <div className="grid grid-flow-col auto-cols-max justify-items-start -mb-px space-x-8">
       {notificationTabs.map(tab => (
         <button
+          key={tab.name}
+          onClick={() => setActiveTab(tab.name)}
           className={classNames(
             'text-sm font-semibold border-b-2 pb-2',
-            tab.current
+            tab.name === activeTab
               ? 'text-on-surface border-primary'
               : 'text-zinc-300 dark:text-zinc-600 hover:text-zinc-500 dark:hover:text-zinc-400 border-transparent hover:border-zinc-300 dark:hover:border-zinc-500'
           )}
