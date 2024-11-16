@@ -38,7 +38,6 @@ export default function Header() {
   const isLoggedInUser = useOptionalUser();
   const data = useRouteLoaderData<typeof loader>('root');
   const [showNotifications, setShowNotifications] = useState(false);
-  console.log('showNotifications', showNotifications);
 
   return (
     <Popover className="sticky top-0 z-50">
