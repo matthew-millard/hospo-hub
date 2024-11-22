@@ -1,6 +1,7 @@
 import { parseWithZod } from '@conform-to/zod';
 import { ActionFunctionArgs, json, redirect } from '@remix-run/node';
 import { prisma } from '~/.server/db';
+import { NotificationTypes } from '~/components/NotificationDropDown';
 import {
   acceptConnectionActionIntent,
   cancelConnectionActionIntent,
@@ -48,12 +49,23 @@ async function initiateConnection(formData: FormData) {
 
   const { userId, targetUserId } = submission.value;
 
-  const connection = await prisma.connection.create({
-    data: {
-      userId,
-      targetUserId,
-    },
-  });
+  // Refactor into a transaction and include creating a notification
+
+  const [connection, notification] = await prisma.$transaction([
+    prisma.connection.create({
+      data: {
+        userId,
+        targetUserId,
+      },
+    }),
+    prisma.notification.create({
+      data: {
+        type: NotificationTypes.CONNECTION_REQUEST,
+        userId: targetUserId,
+        metadata: JSON.stringify({ requestedBy: userId }),
+      },
+    }),
+  ]);
 
   if (!connection) {
     return json({ error: 'Connection could not be created' }, { status: 500 });
