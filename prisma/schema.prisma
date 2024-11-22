@@ -11,21 +11,22 @@ datasource db {
 }
 
 model User {
-  id                  String        @id @default(cuid())
+  id                  String         @id @default(cuid())
   firstName           String
   lastName            String
-  username            String        @unique
-  email               String        @unique
+  username            String         @unique
+  email               String         @unique
   sessions            Session[]
   password            Password?
   roles               Role[]
   documents           Document[]
   profileImage        ProfileImage?
   endorsements        Endorsement[]
-  location            Location?     @relation(fields: [locationId], references: [placeId])
+  location            Location?      @relation(fields: [locationId], references: [placeId])
   locationId          String?
-  connections         Connection[]  @relation("InitiatedConnections")
-  receivedConnections Connection[]  @relation("ReceivedConnections")
+  connections         Connection[]   @relation("InitiatedConnections")
+  receivedConnections Connection[]   @relation("ReceivedConnections")
+  notifications       Notification[]
 }
 
 model Connection {
@@ -41,6 +42,18 @@ model Connection {
   targetUser User @relation("ReceivedConnections", fields: [targetUserId], references: [id])
 
   @@unique([userId, targetUserId]) // Ensure that a connection between two users is unique
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  type      String // CONNECTION_REQUEST | Add more in the future
+  userId    String
+  isRead    Boolean  @default(false)
+  metadata  String? // Serialize the JSON when saving
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model Location {

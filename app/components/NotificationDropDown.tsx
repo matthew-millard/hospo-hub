@@ -2,6 +2,10 @@ import { useMemo, useState } from 'react';
 import classNames from '~/utils/classNames';
 import timeAgo from '~/utils/timeAgo';
 
+export enum NotificationTypes {
+  CONNECTION_REQUEST = 'CONNECTION_REQUEST',
+}
+
 const notifications = [
   {
     id: '123',
