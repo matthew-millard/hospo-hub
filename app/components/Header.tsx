@@ -39,6 +39,15 @@ export default function Header() {
   const data = useRouteLoaderData<typeof loader>('root');
   const [showNotifications, setShowNotifications] = useState(false);
 
+  const [hasUnreadNotifications, setHasUnreadNotifications] = useState(() => {
+    const lastViewed = data?.user?.notificationsLastViewed;
+    return (
+      data?.user?.notifications.some(
+        notification => !notification.isRead && (!lastViewed || new Date(notification.createdAt) > new Date(lastViewed))
+      ) ?? false
+    );
+  });
+
   return (
     <Popover className="sticky top-0 z-50">
       <div className="mx-auto px-6 bg-surface dark:bg-zinc-900 border-b border-around-surface shadow-lg">
@@ -61,7 +70,13 @@ export default function Header() {
             {isLoggedInUser ? (
               <>
                 <div className="relative flex items-center">
-                  <NotificationBell showNotifications={showNotifications} setShowNotifications={setShowNotifications} />
+                  <NotificationBell
+                    userId={isLoggedInUser.id}
+                    hasUnreadNotifications={hasUnreadNotifications}
+                    setHasUnreadNotifications={setHasUnreadNotifications}
+                    showNotifications={showNotifications}
+                    setShowNotifications={setShowNotifications}
+                  />
                   {showNotifications ? <NotificationDropDown /> : null}
                 </div>
                 <ProfileDropdown

@@ -49,23 +49,48 @@ async function initiateConnection(formData: FormData) {
 
   const { userId, targetUserId } = submission.value;
 
-  // Refactor into a transaction and include creating a notification
+  const [connection, notification] = await prisma.$transaction(async prisma => {
+    const requestedBy = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        firstName: true,
+        lastName: true,
+        username: true,
+        profileImage: {
+          select: {
+            url: true,
+          },
+        },
+      },
+    });
 
-  const [connection, notification] = await prisma.$transaction([
-    prisma.connection.create({
+    if (!requestedBy) {
+      throw new Error('The user who initiated the request cannot be found.');
+    }
+
+    const connection = await prisma.connection.create({
       data: {
         userId,
         targetUserId,
       },
-    }),
-    prisma.notification.create({
+    });
+
+    const notification = await prisma.notification.create({
       data: {
-        type: NotificationTypes.CONNECTION_REQUEST,
+        type: 'CONNECTION_REQUEST',
         userId: targetUserId,
-        metadata: JSON.stringify({ requestedBy: userId }),
+        metadata: JSON.stringify({
+          requesterId: userId,
+          firstName: requestedBy.firstName,
+          lastName: requestedBy.lastName,
+          username: requestedBy.username,
+          profileImageUrl: requestedBy.profileImage?.url,
+        }),
       },
-    }),
-  ]);
+    });
+
+    return [connection, notification];
+  });
 
   if (!connection) {
     return json({ error: 'Connection could not be created' }, { status: 500 });
