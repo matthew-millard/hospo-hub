@@ -11,22 +11,23 @@ datasource db {
 }
 
 model User {
-  id                  String         @id @default(cuid())
-  firstName           String
-  lastName            String
-  username            String         @unique
-  email               String         @unique
-  sessions            Session[]
-  password            Password?
-  roles               Role[]
-  documents           Document[]
-  profileImage        ProfileImage?
-  endorsements        Endorsement[]
-  location            Location?      @relation(fields: [locationId], references: [placeId])
-  locationId          String?
-  connections         Connection[]   @relation("InitiatedConnections")
-  receivedConnections Connection[]   @relation("ReceivedConnections")
-  notifications       Notification[]
+  id                      String         @id @default(cuid())
+  firstName               String
+  lastName                String
+  username                String         @unique
+  email                   String         @unique
+  sessions                Session[]
+  password                Password?
+  roles                   Role[]
+  documents               Document[]
+  profileImage            ProfileImage?
+  endorsements            Endorsement[]
+  location                Location?      @relation(fields: [locationId], references: [placeId])
+  locationId              String?
+  connections             Connection[]   @relation("InitiatedConnections")
+  receivedConnections     Connection[]   @relation("ReceivedConnections")
+  notifications           Notification[]
+  notificationsLastViewed DateTime?
 }
 
 model Connection {

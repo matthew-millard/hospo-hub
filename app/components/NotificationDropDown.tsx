@@ -1,40 +1,14 @@
 import { useMemo, useState } from 'react';
 import classNames from '~/utils/classNames';
 import timeAgo from '~/utils/timeAgo';
+import { Link, useRouteLoaderData } from '@remix-run/react';
+import { loader } from '~/root';
+import FallbackAvatar from './FallbackAvatar';
+import { MarkAllAsReadForm } from '~/forms';
 
 export enum NotificationTypes {
   CONNECTION_REQUEST = 'CONNECTION_REQUEST',
 }
-
-const notifications = [
-  {
-    id: '123',
-    isRead: false,
-    title: 'Hamish Millard wants to connect with you',
-    firstName: 'Hamish',
-    lastName: 'Millard',
-    imageUrl:
-      'https://res.cloudinary.com/hospohub/image/upload/v1729867410/users/cm1xtvz2k000a138fi97qlbxg/images/gpu3fu2ipdniyhizugyh.jpg',
-  },
-  {
-    id: '456',
-    isRead: true,
-    title: 'Amy Millard wants to connect with you',
-    firstName: 'Amy',
-    lastName: 'Millard',
-    imageUrl:
-      'https://res.cloudinary.com/hospohub/image/upload/v1729867410/users/cm1xtvz2k000a138fi97qlbxg/images/gpu3fu2ipdniyhizugyh.jpg',
-  },
-  {
-    id: '789',
-    isRead: true,
-    title: 'Finn Millard wants to connect with you',
-    firstName: 'Finn',
-    lastName: 'Millard',
-    imageUrl:
-      'https://res.cloudinary.com/hospohub/image/upload/v1729867410/users/cm1xtvz2k000a138fi97qlbxg/images/gpu3fu2ipdniyhizugyh.jpg',
-  },
-];
 
 const notificationTabs: { name: ActiveTab }[] = [
   {
@@ -48,34 +22,36 @@ const notificationTabs: { name: ActiveTab }[] = [
 type ActiveTab = 'All' | 'Unread';
 
 export default function NotificationDropDown() {
-  const [activeTab, setActiveTab] = useState<ActiveTab>('All');
+  const data = useRouteLoaderData<typeof loader>('root');
+  const notifications = data?.user?.notifications;
+
+  const [activeTab, setActiveTab] = useState<ActiveTab>(() => {
+    return notifications?.some(notifications => !notifications.isRead) ? 'Unread' : 'All';
+  });
 
   const filteredNotifications = useMemo(() => {
-    if (activeTab === 'Unread') {
+    if (notifications && notifications.length > 0 && activeTab === 'Unread') {
       return notifications.filter(notification => !notification.isRead);
     }
     return notifications;
   }, [activeTab, notifications]);
 
   return (
-    <div className="absolute top-8 border border-around-surface -right-14 bg-surface rounded-lg w-96 overflow-scroll">
+    <div className="absolute top-8 border border-around-surface -right-14 bg-surface rounded-lg w-[400px] overflow-scroll shadow-xl">
       <div className="grid grid-cols-1 gap-y-2 px-4 pt-2 border-b border-around-surface bg-surface sticky top-0">
         <div className="flex justify-between items-baseline">
           <h2 className="text-lg font-semibold">Notifications</h2>
-          <button
-            className="text-on-surface-variant hover:text-zinc-400 dark:hover:text-zinc-600 text-xs font-medium"
-            aria-label="Mark all as read"
-          >
-            Mark all as read
-          </button>
+          <MarkAllAsReadForm />
         </div>
         <NotificationTabs activeTab={activeTab} setActiveTab={setActiveTab} />
       </div>
-      <div className="text-sm text-on-surface-variant flex flex-col px-4 py-2">
-        {filteredNotifications.length > 0 ? (
-          filteredNotifications.map(notification => <NotificationItem key={notification.id} {...notification} />)
+      <div className="text-sm text-on-surface-variant flex flex-col py-2">
+        {filteredNotifications && filteredNotifications.length > 0 ? (
+          filteredNotifications.map(notification => (
+            <NotificationItem key={notification.id} notification={notification} />
+          ))
         ) : (
-          <p>
+          <p className="px-4 italic">
             {activeTab === 'Unread'
               ? "You don't have any unread notifications."
               : "You currently don't have any notifications."}
@@ -113,22 +89,58 @@ function NotificationTabs({
   );
 }
 
-function NotificationItem({ id, title, firstName, lastName, imageUrl }: (typeof notifications)[0]) {
+function NotificationItem({
+  notification,
+}: {
+  notification: {
+    id: string;
+    type: string;
+    userId: string;
+    isRead: boolean;
+    metadata: string | null;
+    createdAt: string;
+    updatedAt: string;
+  };
+}) {
+  let metadata;
+  if (notification.metadata) {
+    metadata = JSON.parse(notification.metadata);
+  }
   return (
-    <div className="flex items-center py-1">
-      <img src={imageUrl} alt={`${firstName} ${lastName}`} className="rounded-full object-cover w-12 h-12" />
-      <div className="ml-4 text-on-surface flex flex-col gap-y-2">
+    <div className="flex  items-center mx-2 py-2 px-4 hover:bg-zinc-200 dark:hover:bg-zinc-900 rounded-md">
+      <Link to={`/${metadata.username}`} className="flex-none mr-4">
+        {metadata.profileImageUrl ? (
+          <img
+            src={metadata.profileImageUrl}
+            alt={`${metadata.firstName} ${metadata.lastName}`}
+            className="rounded-full object-cover w-12 h-12"
+          />
+        ) : (
+          <FallbackAvatar height="h-12" width="w-12" />
+        )}
+      </Link>
+      <div className="text-on-surface grow flex flex-col gap-y-2">
         <div>
-          <p>{title}</p>
-          <p className="text-xs text-on-surface-variant">{timeAgo(new Date('2023-09-15T14:23:00Z'))}</p>
+          <Link to={`${metadata.username}`} className="flex">
+            <p>
+              <span className="hover:text-on-surface-variant">{`${metadata.firstName} ${metadata.lastName}`}</span>{' '}
+              wants to connect with you
+            </p>
+          </Link>
+          <p className="text-xs text-on-surface-variant">{timeAgo(new Date(notification.createdAt))}</p>
         </div>
         <div className="flex gap-x-2">
           <button className="font-medium px-3 py-1.5 bg-primary rounded-md text-on-primary hover:bg-primary-variant">
             Accept
           </button>
-          <button className="font-medium px-3 py-1.5 bg-zinc-400 rounded-md text-white hover:bg-zinc-400">
+          <button className="font-medium px-3 py-1.5 bg-zinc-400 hover:bg-zinc-500 rounded-md text-white">
             Decline
           </button>
+        </div>
+      </div>
+      <div className="flex-none">
+        <div className="h-full w-full flex items-center justify-end">
+          {notification.isRead ? null : <span className="ml-auto rounded-full h-2.5 w-2.5 bg-dodger-blue-500"></span>}
         </div>
       </div>
     </div>

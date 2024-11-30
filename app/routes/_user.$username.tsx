@@ -1,6 +1,11 @@
 import { ActionFunctionArgs, LoaderFunctionArgs } from '@remix-run/node';
 import { Link, useFetchers, useLoaderData } from '@remix-run/react';
-import { deleteEndorsementAction, publicEndorsementAction, updateLocationAction } from '~/.server/actions';
+import {
+  deleteEndorsementAction,
+  markAllAsReadAction,
+  publicEndorsementAction,
+  updateLocationAction,
+} from '~/.server/actions';
 import { requireUserId } from '~/.server/auth';
 import { prisma } from '~/.server/db';
 import { FallbackAvatar, PeopleYouMayKnow } from '~/components';
@@ -13,6 +18,7 @@ import {
   UploadProfileImageForm,
 } from '~/forms';
 import { deleteEndorsementActionIntent } from '~/forms/DeleteEndorsementForm';
+import { markAllAsReadActionIntent } from '~/forms/MarkAllAsReadForm';
 import { publicEndorsementActionIntent } from '~/forms/PublicEndorsmentForm';
 import { updateLocationActionIntent } from '~/forms/UpdateLocationForm';
 import { uploadProfileImageActionIntent } from '~/forms/UploadProfileImageForm';
@@ -34,6 +40,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
     }
     case updateLocationActionIntent: {
       return updateLocationAction({ userId, formData, request });
+    }
+    case markAllAsReadActionIntent: {
+      return markAllAsReadAction({ userId, formData, request });
     }
     default: {
       throw new Error('Invalid intent');

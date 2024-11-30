@@ -17,6 +17,9 @@ import { toast as showToast, Toaster } from 'sonner';
 import { useEffect } from 'react';
 import { ToastProps } from './components/Toast';
 import { ExternalScripts } from 'remix-utils/external-scripts';
+import { map } from 'zod';
+import { updateNotificationsLastViewedActionIntent } from './components/NotificationBell';
+import { updateNotificationsLastViewed } from './.server/actions';
 
 export const updateThemeActionIntent = 'update-theme';
 
@@ -37,6 +40,8 @@ export async function action({ request }: LoaderFunctionArgs) {
   switch (intent) {
     case updateThemeActionIntent:
       return updateTheme(formData);
+    case updateNotificationsLastViewedActionIntent:
+      return updateNotificationsLastViewed(formData);
     default:
       return json({ status: 'error', message: 'Invalid intent' }, { status: 400 });
   }
@@ -51,7 +56,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const user = userId ? await getUserData(userId) : null;
 
   // get all other users within the same city
-
   const peopleYouMayKnow = await getPeopleYouMayKnow(userId, user?.location?.placeId);
 
   const data = {

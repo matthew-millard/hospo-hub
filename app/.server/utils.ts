@@ -11,6 +11,8 @@ export async function getUserData(userId: string) {
       lastName: true,
       username: true,
       profileImage: true,
+      notifications: true,
+      notificationsLastViewed: true,
       roles: {
         select: {
           name: true,

@@ -9,6 +9,8 @@ import { LogOutOfOtherSessionsSchema } from '~/schemas/auth';
 import { getSession } from './session';
 import { sessionKey } from './config';
 import { publicEndorsementSchema, UpdateLocationSchema } from '~/schemas/misc';
+import { Action } from '@prisma/client/runtime/library';
+import { invariantResponse } from '~/utils/misc';
 
 type ActionArgs = {
   userId: string;
@@ -321,4 +323,38 @@ export async function updateLocationAction({ userId, request, formData }: Action
   });
 
   return json({ success: true }, { status: 201 });
+}
+
+// Mark all as read
+export async function markAllAsReadAction({ userId, request, formData }: ActionArgs) {
+  const id = formData.get('userId');
+  invariantResponse(userId === id, 'Not authorized');
+  await prisma.notification.updateMany({
+    data: {
+      isRead: true,
+    },
+    where: {
+      userId: id,
+    },
+  });
+
+  return json({ success: true }, { status: 201 });
+}
+
+// Update notifications last viewed
+export async function updateNotificationsLastViewed(formData: FormData) {
+  const userId = formData.get('userId') as string;
+
+  try {
+    await prisma.user.update({
+      where: {
+        id: userId,
+      },
+      data: { notificationsLastViewed: new Date() },
+    });
+
+    return json({ success: true }, { status: 201 });
+  } catch (error) {
+    return json({ success: false }, { status: 500 });
+  }
 }

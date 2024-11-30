@@ -10,6 +10,7 @@ import PublicEndorsementForm from './PublicEndorsmentForm';
 import DeleteEndorsementForm from './DeleteEndorsementForm';
 import ConnectWithUserForm from './ConnectWithUserForm';
 import UpdateLocationForm from './UpdateLocationForm';
+import MarkAllAsReadForm from './MarkAllAsReadForm';
 
 export {
   LoginForm,
@@ -24,4 +25,5 @@ export {
   DeleteEndorsementForm,
   ConnectWithUserForm,
   UpdateLocationForm,
+  MarkAllAsReadForm,
 };
